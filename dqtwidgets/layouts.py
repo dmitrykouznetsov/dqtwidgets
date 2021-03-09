@@ -1,23 +1,41 @@
+# Copyright 2021 Dmitry Kouznetsov <dmitry.kouznetsov@protonmail.com>
+#
+# This program is free software: you can redistribute it
+# and/or modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+# Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see http://www.gnu.org/licenses/.
+#
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 
 
-def add_widgets(layout, widgets):
+def add_widgets(layout, widgets, alignment):
     if not widgets: return layout
     layout.addWidget(widgets[0])
-    return add_widgets(layout, widgets[1:])
+    layout.setAlignment(widgets[0], alignment)
+    return add_widgets(layout, widgets[1:], alignment)
 
 
-def _layout(layout, widgets):
+def _layout(layout, widgets, alignment):
     parent = QWidget()
-    parent.setLayout(add_widgets(layout, widgets))
+    parent.setLayout(add_widgets(layout, widgets, alignment))
     return parent
 
-def h_layout(widgets):
-    return _layout(QHBoxLayout(), widgets)
+
+def h_layout(widgets, spacing=0, alignment=Qt.AlignCenter):
+    return _layout(QHBoxLayout(spacing=spacing), widgets, alignment)
 
 
-def v_layout(widgets):
-    return _layout(QVBoxLayout(), widgets)
+def v_layout(widgets, spacing=0, alignment=Qt.AlignCenter):
+    return _layout(QVBoxLayout(spacing=spacing), widgets, alignment)
 
 
 if __name__ == "__main__":

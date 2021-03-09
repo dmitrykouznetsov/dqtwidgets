@@ -13,14 +13,15 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see http://www.gnu.org/licenses/.
 #
-from PySide2.QtWidgets import QDial
+from PySide2.QtWidgets import QDial, QLineEdit, QWidget
 from PySide2.QtCore import Qt, Signal, Slot, QPointF, QRectF, QTimer
-from PySide2.QtGui import QColor, QFont, QFontMetrics, QPainter, QPen, QPainterPath, QCursor
+from PySide2.QtGui import QColor, QFont, QFontMetrics, QPainter, QPen, QPainterPath, QCursor, QDoubleValidator, QIntValidator
 from math import floor
 from types import SimpleNamespace as box
+from .layouts import v_layout
 
 
-class ArcDial(QDial):
+class ArcDialBase(QDial):
 
     fvalueChanged = Signal(float)
     dragStateChanged = Signal(bool)
@@ -200,12 +201,40 @@ class ArcDial(QDial):
         QDial.leaveEvent(self, event)
 
 
+def ArcDial(label="", start=0, stop=10, initial=0, color=QColor(0x3E, 0xB8, 0xBE), cast=float):
+    def genReadoutText(value):
+        return str(cast(value)) if cast is int else f"{value:.2f}"
+
+    def updateReadout(value):
+        readout.setText(genReadoutText(value))
+
+    def updateDial():
+        value = cast(readout.text())
+        dial.setValue(value)
+
+    readout = QLineEdit()
+    readout.setAlignment(Qt.AlignCenter)
+    readout.setText(genReadoutText(initial))
+    readout.setMaximumWidth(55)
+    readout.setMaxLength(5)
+    readout.returnPressed.connect(updateDial)
+
+    if cast is int:
+        readout.setValidator(QIntValidator(start, stop, None))
+    else:
+        readout.setValidator(QDoubleValidator(start, stop, 2, None))
+
+    dial = ArcDialBase(label, start, stop, initial, color)
+    dial.fvalueChanged.connect(updateReadout)
+    return v_layout([readout, dial])
+
+
 if __name__ == "__main__":
     from PySide2.QtWidgets import QApplication
     import sys
     app = QApplication([])
 
-    widget = ArcDial(label="Label", start=100, stop=200)
+    widget = ArcDial(label="Label", start=100, stop=200, initial=100)
     # widget.fvalueChanged.connect(lambda x: print(x))
     widget.resize(100, 100)
     widget.show()
