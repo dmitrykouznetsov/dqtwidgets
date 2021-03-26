@@ -18,7 +18,7 @@ from PySide2.QtCore import Qt, Signal, Slot, QPointF, QRectF, QTimer
 from PySide2.QtGui import QColor, QFont, QFontMetrics, QPainter, QPen, QPainterPath, QCursor, QDoubleValidator, QIntValidator
 from math import floor
 from types import SimpleNamespace as box
-from .layouts import v_layout
+from dqtwidgets.layouts import v_layout
 
 
 class ArcDialBase(QDial):
