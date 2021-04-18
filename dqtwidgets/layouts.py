@@ -24,18 +24,19 @@ def add_widgets(layout, widgets, alignment):
     return add_widgets(layout, widgets[1:], alignment)
 
 
-def _layout(layout, widgets, alignment):
+def _layout(layout, widgets, margin, alignment):
     parent = QWidget()
+    layout.setContentsMargins(margin, margin, margin, margin)
     parent.setLayout(add_widgets(layout, widgets, alignment))
     return parent
 
 
-def h_layout(widgets, spacing=0, alignment=Qt.AlignCenter):
-    return _layout(QHBoxLayout(spacing=spacing), widgets, alignment)
+def h_layout(widgets, spacing=0, margin=5, alignment=Qt.AlignCenter):
+    return _layout(QHBoxLayout(spacing=spacing), widgets, margin, alignment)
 
 
-def v_layout(widgets, spacing=0, alignment=Qt.AlignCenter):
-    return _layout(QVBoxLayout(spacing=spacing), widgets, alignment)
+def v_layout(widgets, spacing=0, margin=5, alignment=Qt.AlignCenter):
+    return _layout(QVBoxLayout(spacing=spacing), widgets, margin, alignment)
 
 
 if __name__ == "__main__":

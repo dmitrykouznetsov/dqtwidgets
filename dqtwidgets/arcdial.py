@@ -201,7 +201,7 @@ class ArcDialBase(QDial):
         QDial.leaveEvent(self, event)
 
 
-def ArcDial(label="", start=0, stop=10, initial=0, color=QColor(0x3E, 0xB8, 0xBE), cast=float):
+def ArcDial(label="", start=0, stop=10, initial=0, color=QColor(0x3E, 0xB8, 0xBE), cast=float, on_change=None):
     def genReadoutText(value):
         return str(cast(value)) if cast is int else f"{value:.2f}"
 
@@ -226,6 +226,10 @@ def ArcDial(label="", start=0, stop=10, initial=0, color=QColor(0x3E, 0xB8, 0xBE
 
     dial = ArcDialBase(label, start, stop, initial, color)
     dial.fvalueChanged.connect(updateReadout)
+
+    if on_change:
+        dial.fvalueChanged.connect(on_change)
+
     return v_layout([readout, dial])
 
 
@@ -234,7 +238,7 @@ if __name__ == "__main__":
     import sys
     app = QApplication([])
 
-    widget = ArcDial(label="Label", start=100, stop=200, initial=100)
+    widget = ArcDial(label="Label", start=100, stop=200, initial=100, on_change=lambda x: print(x))
     # widget.fvalueChanged.connect(lambda x: print(x))
     widget.resize(100, 100)
     widget.show()

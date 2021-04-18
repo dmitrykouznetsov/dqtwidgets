@@ -3,8 +3,9 @@ from PySide2.QtCore import QSettings
 
 
 class MainWindowTemplate(QMainWindow):
-    def __init__(self, domain, appname, centralwidget):
+    def __init__(self, domain, appname, centralwidget, close_event):
         super().__init__()
+        self.close_event = close_event
         self.settings = QSettings(domain, appname)
         self.setWindowTitle(appname)
         self.setCentralWidget(centralwidget)
@@ -12,6 +13,7 @@ class MainWindowTemplate(QMainWindow):
     def closeEvent(self, event):
         self.settings.setValue("geometry", self.saveGeometry())
         self.settings.setValue("windowState", self.saveState())
+        self.close_event()
         super().closeEvent(event)
 
     def readSettings(self):

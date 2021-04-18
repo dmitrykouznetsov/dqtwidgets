@@ -4,4 +4,5 @@ from .pinselector import PinSelector
 from .templatemain import MainWindowTemplate
 from .crosshair import CrossHair, Coordinate, Bounds
 from .wasd import ArrowKeys, SYMBOLS, KeyboardShortCuts, QLED
+from .gbox import group_box
 from .theme import THEME
