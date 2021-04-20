@@ -26,7 +26,7 @@ class ArcDialBase(QDial):
     fvalueChanged = Signal(float)
     dragStateChanged = Signal(bool)
 
-    def __init__(self, label="", start=0, stop=10, initial=0, color=QColor(0x3E, 0xB8, 0xBE)):
+    def __init__(self, label="", start=0, stop=10, initial=0, color="#3eb8be", groove_color="#c0c0c0"):
         super().__init__()
         self.setRange(start, stop)
         self.setCursor(QCursor(Qt.SizeHorCursor))
@@ -41,7 +41,8 @@ class ArcDialBase(QDial):
         self._lastDragPos = None
         self._lastDragValue = 0
 
-        self._color = color
+        self._color = QColor(color)
+        self._groove_color = QColor(groove_color)
         self._size = box(height=64, width=64, spacer=5)
         self._hover = box(active=False, min=0, max=9, step=0)
         self._label = box(text=label, width=0, height=0, position=QPointF(0, 0), font=QFont(self.font()))
@@ -137,8 +138,8 @@ class ArcDialBase(QDial):
         color = self._color.lighter(100 + self._hover.step * 3)
 
         # Background
-        painter.setBrush(Qt.lightGray)
-        painter.setPen(QPen(Qt.lightGray, 4))
+        painter.setBrush(self._groove_color)
+        painter.setPen(QPen(self._groove_color, 4))
         painter.drawArc(8.0, 8.0, 50.0, 50.0, 216*16, -252*16)
 
         # draw small circle
@@ -201,7 +202,7 @@ class ArcDialBase(QDial):
         QDial.leaveEvent(self, event)
 
 
-def ArcDial(label="", start=0, stop=10, initial=0, color=QColor(0x3E, 0xB8, 0xBE), cast=float, on_change=None):
+def ArcDial(label="", start=0, stop=10, initial=0, cast=float, on_change=None, color="#3eb8be", groove_color="#c0c0c0"):
     def genReadoutText(value):
         return str(cast(value)) if cast is int else f"{value:.2f}"
 
@@ -224,7 +225,7 @@ def ArcDial(label="", start=0, stop=10, initial=0, color=QColor(0x3E, 0xB8, 0xBE
     else:
         readout.setValidator(QDoubleValidator(start, stop, 2, None))
 
-    dial = ArcDialBase(label, start, stop, initial, color)
+    dial = ArcDialBase(label, start, stop, initial, color, groove_color)
     dial.fvalueChanged.connect(updateReadout)
 
     if on_change:
@@ -238,7 +239,7 @@ if __name__ == "__main__":
     import sys
     app = QApplication([])
 
-    widget = ArcDial(label="Label", start=100, stop=200, initial=100, on_change=lambda x: print(x))
+    widget = ArcDial(label="Label", start=100, stop=200, initial=100)
     # widget.fvalueChanged.connect(lambda x: print(x))
     widget.resize(100, 100)
     widget.show()
