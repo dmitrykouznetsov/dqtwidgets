@@ -27,11 +27,14 @@ class PinSelector(QTableWidget):
         for col in range(columns):
             self.setColumnWidth(col, cell_size)
 
+        for row in range(rows):
+            self.setRowHeight(row, cell_size)
+
         # Get rid of remaining white space in the table
         horizontalHeader = self.horizontalHeader()
         verticalHeader = self.verticalHeader()
         self.setMaximumWidth(horizontalHeader.length())
-        self.setMaximumHeight(verticalHeader.length())
+        # self.setMaximumHeight(verticalHeader.length())
         self.setMinimumWidth(horizontalHeader.length())
         self.setMinimumHeight(verticalHeader.length())
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -49,7 +52,7 @@ class PinSelector(QTableWidget):
             for col in range(columns):
 
                 # The number in the cell depends on the number of rows/columns
-                item = QTableWidgetItem(str(2**col * (row + 1)))
+                item = QTableWidgetItem(str(col + columns * row + 1))
                 item.setTextAlignment(Qt.AlignCenter)
 
                 # Pins cannot be renamed
