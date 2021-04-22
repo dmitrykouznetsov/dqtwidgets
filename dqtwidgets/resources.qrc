@@ -4,5 +4,8 @@
     <file>images/led_green.png</file>
     <file>images/led_yellow.png</file>
     <file>images/led_red.png</file>
+    <file>images/vline.png</file>
+    <file>images/branch-more.png</file>
+    <file>images/branch-end.png</file>
 </qresource>
 </RCC>
