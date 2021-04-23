@@ -17,6 +17,27 @@ from PySide2.QtWidgets import QTreeWidget, QTreeWidgetItem, QListWidget, QListWi
 from PySide2.QtCore import Qt, QDataStream
 
 
+def add_context_menu(widget, *actions):
+    widget.on_context_menu = lambda p: widget.popMenu.exec_(widget.mapToGlobal(p))
+
+    # set button context menu policy
+    widget.setContextMenuPolicy(Qt.CustomContextMenu)
+    widget.customContextMenuRequested.connect(widget.on_context_menu)
+
+    if actions:
+        # create context menu
+        widget.popMenu = QMenu(widget)
+        for action in actions:
+            widget.popMenu.addAction(QAction(action[0], widget, triggered=lambda: action[1](widget)))
+
+
+def enable_bidirectional_drag(widget):
+    widget.setDragDropMode(widget.DragDrop)
+    widget.setSelectionMode(widget.ExtendedSelection)
+    widget.setAcceptDrops(True)
+    widget.setDefaultDropAction(Qt.MoveAction)
+
+
 def model_to_dict(model):
     d = dict()
 
@@ -34,49 +55,46 @@ def model_to_dict(model):
 
 
 class EditableTree(QTreeWidget):
-    def __init__(self, nodes={}):
+    def __init__(self, *actions, nodes={}):
         super().__init__()
 
+        # Don't like the headerbar
         self.setHeaderHidden(True)
-        self.setDragDropMode(self.DragDrop)
-        self.setSelectionMode(self.ExtendedSelection)
-        self.setAcceptDrops(True)
-        self.setDefaultDropAction(Qt.MoveAction)
+
+        # TODO: draw lines to make divisions more clear
         self.setAlternatingRowColors(True)
+
+        # Drag'n'drop between e.g. list and tree
+        enable_bidirectional_drag(self)
 
         #TODO: add unpacking logic
         self.nodes = nodes
 
-        # set button context menu policy
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.on_context_menu)
+        if actions: add_context_menu(self, *actions)
 
-        # create context menu
-        self.popMenu = QMenu(self)
-        self.popMenu.addAction(QAction('print model', self, triggered=self.print_model))
-
-    def on_context_menu(self, point):
-        # show context menu
-        self.popMenu.exec_(self.mapToGlobal(point))
-
-    def print_model(self):
-        print(model_to_dict(self.model()))
+    @property
+    def items(self):
+        return model_to_dict(self.model())
 
 
 class EditableList(QListWidget):
-    def __init__(self, *items):
+    def __init__(self, items, *actions):
         super().__init__()
+        if actions: add_context_menu(self, *actions)
 
-        self.setDragDropMode(self.DragDrop)
-        self.setSelectionMode(self.ExtendedSelection)
-        self.setAcceptDrops(True)
-        self.setDefaultDropAction(Qt.MoveAction)
+        # Drag'n'drop between e.g. list and tree
+        enable_bidirectional_drag(self)
 
-        self.populate(*items)
+        self.populate(items)
 
-    def populate(self, *items):
+    def populate(self, items):
         for i in items:
             self.addItem(i)
+
+    @property
+    def items(self):
+        return [self.item(i).text() for i in range(self.count())]
+
 
 
 if __name__ == "__main__":
@@ -85,8 +103,8 @@ if __name__ == "__main__":
     app = QApplication([])
 
     layout = QHBoxLayout()
-    layout.addWidget(EditableList("item 1", "item 2", "item 3"))
-    layout.addWidget(EditableTree())
+    layout.addWidget(EditableList(["item 1", "item 2", "item 3"], ("print list", lambda l: print(l.items))))
+    layout.addWidget(EditableTree(("print items dict", lambda tree: print(tree.items))))
 
     container = QWidget()
     container.setLayout(layout)
