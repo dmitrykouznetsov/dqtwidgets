@@ -5,5 +5,5 @@ from .templatemain import MainWindowTemplate
 from .crosshair import CrossHair, Coordinate, Bounds
 from .wasd import ArrowKeys, SYMBOLS, KeyboardShortCuts, QLED
 from .gbox import group_box
-from .editable import EditableTree, EditableList
+from .editable import EditableTree, EditableList, add_action
 from .theme import THEME

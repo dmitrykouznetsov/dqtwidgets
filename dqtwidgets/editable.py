@@ -17,18 +17,16 @@ from PySide2.QtWidgets import QTreeWidget, QTreeWidgetItem, QListWidget, QListWi
 from PySide2.QtCore import Qt, QDataStream
 
 
-def add_context_menu(widget, actions):
+def add_context_menu(widget):
     widget.on_context_menu = lambda p: widget.popMenu.exec_(widget.mapToGlobal(p))
-
     # set button context menu policy
     widget.setContextMenuPolicy(Qt.CustomContextMenu)
     widget.customContextMenuRequested.connect(widget.on_context_menu)
-
-    # create context menu
-    # FIXME: looping over all items only activates last item (BUG?)
     widget.popMenu = QMenu(widget)
-    for entry, action in actions.items():
-        widget.popMenu.addAction(entry, lambda: action(widget))
+
+
+def add_action(widget, entry, action):
+    widget.popMenu.addAction(entry, lambda: action(widget))
 
 
 def enable_bidirectional_drag(widget):
@@ -36,6 +34,7 @@ def enable_bidirectional_drag(widget):
     widget.setSelectionMode(widget.ExtendedSelection)
     widget.setAcceptDrops(True)
     widget.setDefaultDropAction(Qt.MoveAction)
+    widget.setDropIndicatorShown(True)
 
 
 def model_to_dict(model):
@@ -56,7 +55,9 @@ def model_to_dict(model):
 
 class EditableTree(QTreeWidget):
     def __init__(self, nodes={}, actions={}):
+        # TODO: fix resize bug for windows
         super().__init__()
+        add_context_menu(self)
 
         # Don't like the headerbar
         self.setHeaderHidden(True)
@@ -69,18 +70,28 @@ class EditableTree(QTreeWidget):
 
         #TODO: add unpacking logic
         self.nodes = nodes
+        self.itemDoubleClicked.connect(self.edit_item)
 
-        if actions: add_context_menu(self, actions)
+    def add_entry(self):
+        i = QTreeWidgetItem()
+        i.setText(0, "NEW ENTRY")
+        self.insertTopLevelItem(0, i)
 
     @property
     def items(self):
         return model_to_dict(self.model())
 
+    def edit_item(self, item, col):
+        if not (item.flags() & Qt.ItemIsEditable):
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
+        self.editItem(item, col)
+
 
 class EditableList(QListWidget):
-    def __init__(self, items=[], actions={}):
+    def __init__(self, items=[]):
         super().__init__()
-        if actions: add_context_menu(self, actions)
+        add_context_menu(self)
+        self.itemDoubleClicked.connect(self.edit_item)
 
         # Drag'n'drop between e.g. list and tree
         enable_bidirectional_drag(self)
@@ -88,8 +99,15 @@ class EditableList(QListWidget):
         self.populate(items)
 
     def populate(self, items):
-        for i in items:
+        for item in items:
+            i = QListWidgetItem(item)
+            i.setFlags(i.flags() | Qt.ItemIsEditable)
             self.addItem(i)
+
+    def edit_item(self, item):
+        if not (item.flags() & Qt.ItemIsEditable):
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
+        self.editItem(item)
 
     @property
     def items(self):
@@ -102,13 +120,18 @@ if __name__ == "__main__":
     import sys
     app = QApplication([])
 
-    layout = QHBoxLayout()
-    layout.addWidget(EditableList(items=["item 1", "item 2", "item 3"],
-                                  actions={"print list": lambda l: print(l.items),
-                                           "clear list": lambda l: print(l.clear)}))
-    # layout.addWidget(EditableTree(actions={"print items dict": lambda tree: print(tree.items)}))
+    list_widget = EditableList(items=["item 1", "item 2", "item 3"])
+    add_action(list_widget, "print list", lambda l: print(l.items))
+    add_action(list_widget, "clear list", lambda l: l.clear())
+
+    tree_widget = EditableTree()
+    add_action(tree_widget, "print items dict", lambda tree: print(tree.items))
+    add_action(tree_widget, "add entry", lambda tree: tree.add_entry())
 
     container = QWidget()
+    layout = QHBoxLayout()
+    layout.addWidget(list_widget)
+    layout.addWidget(tree_widget)
     container.setLayout(layout)
     container.show()
 
