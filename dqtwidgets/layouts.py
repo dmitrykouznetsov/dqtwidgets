@@ -20,7 +20,7 @@ from PySide2.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 def add_widgets(layout, widgets, alignment):
     if not widgets: return layout
     layout.addWidget(widgets[0])
-    layout.setAlignment(widgets[0], alignment)
+    if alignment: layout.setAlignment(widgets[0], alignment)
     return add_widgets(layout, widgets[1:], alignment)
 
 
@@ -31,11 +31,11 @@ def _layout(layout, widgets, margin, alignment):
     return parent
 
 
-def h_layout(widgets, spacing=0, margin=5, alignment=Qt.AlignCenter):
+def h_layout(widgets, spacing=0, margin=5, alignment=None):
     return _layout(QHBoxLayout(spacing=spacing), widgets, margin, alignment)
 
 
-def v_layout(widgets, spacing=0, margin=5, alignment=Qt.AlignCenter):
+def v_layout(widgets, spacing=0, margin=5, alignment=None):
     return _layout(QVBoxLayout(spacing=spacing), widgets, margin, alignment)
 
 
