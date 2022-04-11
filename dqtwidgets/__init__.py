@@ -7,3 +7,5 @@ from .wasd import ArrowKeys, SYMBOLS, KeyboardShortCuts, QLED
 from .gbox import group_box
 from .editable import EditableTree, EditableList, add_action
 from .theme import THEME
+from .image import ScalableImage
+from .fatbutton import FatButton
