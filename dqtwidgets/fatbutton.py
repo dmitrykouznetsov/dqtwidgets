@@ -14,12 +14,16 @@
 # with this program. If not, see http://www.gnu.org/licenses/.
 #
 from PySide2.QtCore import Qt
+from PySide2.QtGui import QPixmap, QIcon
 from PySide2.QtWidgets import QPushButton
 
 
 class FatButton(QPushButton):
-    def __init__(self, msg, width=100, height=100, checkable=True):
-        super().__init__(msg)
+    def __init__(self, label, logo, width=100, height=100, checkable=True):
+        super().__init__()
+
+        self.setStyleSheet("QPushButton{image: url("+logo+"); text-align: bottom}")
+        self.setText("\n\n\n\n"+label)
 
         if checkable:
             self.setCheckable(True)
@@ -32,7 +36,7 @@ if __name__ == "__main__":
     import sys
     app = QApplication([])
 
-    widget = FatButton("Press me!")
+    widget = FatButton("Press me!", "images/letter.png")
     widget.show()
 
     sys.exit(app.exec_())
